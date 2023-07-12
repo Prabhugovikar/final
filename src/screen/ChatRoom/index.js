@@ -52,12 +52,12 @@ import EmojiSelector, { Categories } from "react-native-emoji-selector";
 class ChatRoom extends Component {
     scrollViewRef = React.createRef();
     constructor(props) {
-
-        super(props);
+        
+        super(props);        
         this.state = {
             chatMessages3: [],
             isDisabled: false,
-            isRecording: false,
+            isRecording:false,
             currentVideoIndex: null,
             isPlaying: false,
             currentAudio: null,
@@ -67,10 +67,10 @@ class ChatRoom extends Component {
             isDisabled: true,
             getmsg: [],
             sender_id: '',
-            otherNum: '',
+            otherNum:'',
             room_id: '',
             names: '',
-            contactname: '',
+            contactname:'',
             result: '',
             search: '',
             modalVisible: false,
@@ -91,9 +91,9 @@ class ChatRoom extends Component {
                 latitudeDelta: 0.0922,
                 longitudeDelta: 0.0421,
             },
-            Activated: false,
+            Activated: false, 
             ProfileName: '',
-            profilepic: '',
+            profilepic:'',
             chatMessage: '',
             seen: true,
             isVisible: false,
@@ -104,7 +104,7 @@ class ChatRoom extends Component {
             S_selectedcat: '',
             time: '',
             status1: '',
-            other_id1: '',
+            other_id1:'',
             chatMessages: [
 
                 // { id: 0, msg: '', img: '', v: '' },
@@ -123,11 +123,14 @@ class ChatRoom extends Component {
             isTyping: false,
             isOnline: false,
             isOpen: false,
-            isloading: false,
-            socketid: '',
-            typing: '',
-            online_id: '',
-            other_id2: '',
+            isloading:false,
+            socketid:'',
+            typing:'',
+            online_id:'',
+            other_id2:'',
+            onetoone1:'',
+            values:'',
+            theme1:null,
 
 
             housrArr: [
@@ -586,47 +589,34 @@ class ChatRoom extends Component {
     }
 
 
-    Finger_print() {
-        FingerprintScanner.authenticate({
-            description: 'Scan your fingerprint on the device scanner to continue',
-        })
-            .then(() => {
-                ToastMsg('Authenticated successfully', 'success');
-                this.setState({ Activated: true });
-                FingerprintScanner.release();
-                console.log('true...')
-            })
-            .catch(error => {
-                FingerprintScanner.release();
-                ToastMsg(error.message, 'danger');
-                console.log('false...')
-            });
-    }
-
-
     async componentDidMount() {
         // this.setState({isloading:true})
-        this.state.socketid = socket.id
-
+        this.state.socketid=socket.id
+        
         this.scrollViewRef.current?.scrollToEnd({ animated: true });
         this.state.names = await AsyncStorage.getItem('username');
-        console.log('username',this.state.names);
-
-        this.state.sender_id = await AsyncStorage.getItem('number')
-        console.log('userid', this.state.sender_id)
+        console.log(this.state.names);
+        
+        this.state.sender_id= await AsyncStorage.getItem('number')
+        console.log('userid',this.state.sender_id)
         const { navigation, route } = this.props;
 
         const value = await AsyncStorage.getItem('@user');
-        const value1 = JSON.parse(value)
-        console.log('_id....', value1)
+    const value1 = JSON.parse(value)
+    console.log('_id....',value1)
 
+    
 
+   
+       
         // const contactName = route?.params?.contactName;
 
         const storedTheme = await AsyncStorage.getItem('theme1');
+
         if (storedTheme) {
             this.setState({
-                theme: storedTheme
+                theme: storedTheme,
+                theme1:null
             });
         }
 
@@ -639,79 +629,93 @@ class ChatRoom extends Component {
         //             : contactName;
         // const {onetoone, names}  = route.params; 
         // console.log('data', onetoone, names)
-        const { onetoone, names, other_id } = route.params;
+        const { onetoone, names,other_id,theme } = route.params;
         console.log('onetoone:', onetoone);
-        console.log('names:', names);
-        console.log('other_id', other_id)
+        // this.setState({onetoone1:onetoone})
+        console.log('theme',theme)
+        console.log('names:', names);   
+        console.log('other_id',other_id)
         // this.state.other_id2=other_id
-
+    
         this.setState({
-            Alldata: onetoone
+            Alldata: onetoone,
+            values: value
         });
-        this.setState({ ProfileName: JSON.stringify(names).replace(/\"/g, ''), other_id2: other_id })
+        this.setState({ProfileName: JSON.stringify(names).replace(/\"/g, ''),other_id2:other_id})
 
         if (this.state.sender_id == onetoone.user_id) {
             this.state.otherNum = onetoone.other_id;
         }
         else {
             this.state.otherNum = onetoone.user_id;
-        }
+        }     
         if (onetoone.status === 'Success') {
-            //     this.state.contactname=await AsyncStorage.getItem('name')
-            // console.log(this.state.contactname)
-            if (this.state.sender_id == onetoone.response[0].user_id) {
-
-                this.setState({
-                    // sender_id :  route.params.response[0].user_id,
-                    room_id: onetoone.response[0].room_id,
-                    otherNum: onetoone.response[0].other_id,
-                    online_id: this.state.other_id2
+        //     this.state.contactname=await AsyncStorage.getItem('name')
+        // console.log(this.state.contactname)
+        if (this.state.sender_id == onetoone.response[0].user_id) {
+            
+            this.setState({ 
+                // sender_id :  route.params.response[0].user_id,
+                room_id: onetoone.response[0].room_id,
+                otherNum : onetoone.response[0].other_id,
+                online_id:this.state.other_id2,
+                onetoone1:onetoone,
+                theme1:onetoone.response[0].setTheme,
+                theme:null
                 });
-            }
-            else {
-                this.setState({
-                    // sender_id :  route.params.response[0].user_id,
-                    room_id: onetoone.response[0].room_id,
-                    otherNum: onetoone.response[0].user_id,
-                    online_id: this.state.other_id2
-                });
-            }
-
-
         }
         else {
+            this.setState({ 
+                // sender_id :  route.params.response[0].user_id,
+                room_id: onetoone.response[0].room_id,
+                otherNum : onetoone.response[0].user_id,
+                online_id:this.state.other_id2,
+                onetoone1:onetoone,
+                theme1:onetoone.response[0].setTheme,
+                theme:null
+                });
+        }       
+            
+            
+            }
+        else {
             this.setState({
-                profilepic: onetoone.otherdata[0].profile_img,
-                room_id: onetoone.room_id,
-                online_id: onetoone.otherdata[0]._id
+                profilepic:onetoone.otherdata[0].profile_img,
+                room_id:onetoone.room_id,
+                online_id:onetoone.otherdata[0]._id,
+                onetoone1:onetoone,
+                theme1:onetoone.setTheme,
+                theme:null
                 // sender_id:onetoone.user_id,
                 // otherNum:onetoone.other_id
             });
+            
+        } 
 
-        }
-
-
+        console.log('theme1',this.state.theme1)
+               
+        
         // console.log('otherNum', this.state.sender_id);
         console.log('othernum', this.state.otherNum)
         await AsyncStorage.setItem('profilenum', JSON.stringify(this.state.otherNum));
         await AsyncStorage.setItem('profilename', this.state.ProfileName);
         await AsyncStorage.setItem('profilpic', this.state.profilepic);
-
+       
 
 
         this.Finger_print();
 
         socket.on('typing', (room) => {
-            console.log('typimg', room)
-        });
-        socket.on('stopTyping', (data) => {
+            console.log('typimg',room)
+          });
+          socket.on('stopTyping', (data) => {
             console.log("User stopped typing: ", data);
             // socket.broadcast.to(data.room).emit('stopTyping', data);
-        });
+          });
 
         // for recieving image
-        socket.on('user gallery', (data) => {
-            console.log('image', data);
+        socket.on('user gallery',(data)=>{
+            console.log('image',data);
             // socket.emit('user document',data)
             this.setState({
                 chatMessages: [...this.state.chatMessages, data]
@@ -725,42 +729,42 @@ class ChatRoom extends Component {
             this.setState({
                 chatMessages: [...this.state.chatMessages, data]
             });
-        })
+        })     
 
-        socket.on('typing1', (data) => {
+        socket.on('typing1',  (data) => {
             console.log('typingcheck', data)
-            if (data[0].socket !== this.state.socketid) {
-                this.setState({ typing: 'typing...' })
+            if(data[0].socket!==this.state.socketid){
+              this.setState({typing:'typing...'})
             }
-
-
-        });
-        socket.on('stopTyping1', (data) => {
+            
+        
+          });
+          socket.on('stopTyping1',  (data) => {
             console.log('stopTypingcheck', data)
-            if (data[0].socket !== this.state.socketid) {
-                this.setState({ typing: '' })
+            if(data[0].socket!==this.state.socketid){
+              this.setState({typing:''})
             }
-        });
-
+          });
+       
         //for recieving document
-        socket.on("user document", (data) => {
-            console.log('document', data);
+        socket.on("user document",(data)=>{
+            console.log('document',data);
             // socket.emit('user document',data)
             this.setState({
                 chatMessages: [...this.state.chatMessages, data]
             });
         })
         //for recieving audio files
-        socket.on("user audio", (data) => {
-            console.log('audio', data)
+        socket.on("user audio",(data)=>{
+            console.log('audio',data)  
             // socket.emit('user audio',data)
             this.setState({
                 chatMessages: [...this.state.chatMessages, data]
             });
         })
         //for recieving video
-        socket.on("user video", (data) => {
-            console.log('video', data)
+        socket.on("user video",(data)=>{
+            console.log('video',data)  
             // socket.emit('user video',data)
             this.setState({
                 chatMessages: [...this.state.chatMessages, data]
@@ -773,27 +777,27 @@ class ChatRoom extends Component {
             console.log("status", status)
             console.log("time", time)
             if (userId === this.state.otherNum) {
-                const userIds = this.state.room_id
-
-                const currentTime = new Date().toLocaleTimeString('en-US', {
-                    hour: 'numeric',
-                    minute: 'numeric',
-                    hour12: true
-                });
-                console.log("userStatusChanged", userId, status, currentTime)
-                this.setState({ status1: status, time: currentTime });
-                //  AsyncStorage.setItem(`status_${userIds}`,status) 
-                // AsyncStorage.setItem(`time_${userIds}`,time?time:'')
+              const userIds = this.state.room_id
+      
+              const currentTime = new Date().toLocaleTimeString('en-US', {
+                hour: 'numeric',
+                minute: 'numeric',
+                hour12: true
+              });
+              console.log("userStatusChanged", userId, status, currentTime)
+              this.setState({ status1: status, time: currentTime });
+              //  AsyncStorage.setItem(`status_${userIds}`,status) 
+              // AsyncStorage.setItem(`time_${userIds}`,time?time:'')
             }
-        });
+          });
 
-
-
+       
+        
         //for online message
         // socket.emit('online message1',{online:true})
         // socket.on('online message',(online)=>{
         //     console.log('online message1',online)
-
+            
         //     console.log('socketid', socket.id)
         //     if (online[0] !== socket.id && online[1] == true) {
         //         this.setState({isOnline:true})
@@ -808,11 +812,11 @@ class ChatRoom extends Component {
 
         socket.on('typing', (data) => {
             console.log('recieveddata', data);
-        });
+          });
 
-        socket.on('stopTyping', (data) => {
+          socket.on('stopTyping', (data) => {
             console.log('recieveddatastopped', data);
-        });
+          });   
 
         // Set an interval to periodically check the online status
         // setInterval(() => {
@@ -820,7 +824,7 @@ class ChatRoom extends Component {
         //     socket.emit('online message', (online) => {
         //     console.log('online message1', online)
         //     console.log('socketid', socket.id)
-
+        
         //     // Check if the received socket value matches the local socket ID
         //     if (online[0] !== socket.id) {
         //         // If they do not match, set the isOnline flag to true
@@ -835,9 +839,9 @@ class ChatRoom extends Component {
         //     }
         //     })
         // }, 2000)
+  
 
-
-
+       
 
         //for getting chat history
         // var requestOptions = {
@@ -865,44 +869,44 @@ class ChatRoom extends Component {
         //     .catch(error => console.log('error', error));
         this.getMessage()
 
-        var myHeaders = new Headers();
-        myHeaders.append("Content-Type", "application/json");
-        var raw = JSON.stringify({
+           var myHeaders = new Headers();
+          myHeaders.append("Content-Type", "application/json");
+          var raw = JSON.stringify({
             "userId": this.state.online_id
-        });
-        console.log('raw', raw)
-        var requestOptions = {
+          });
+          console.log('raw', raw)
+          var requestOptions = {
             method: 'POST',
             headers: myHeaders,
             body: raw,
             redirect: 'follow'
-        };
-
-        fetch(API_URL + "getuseronlineorofline", requestOptions)
+          };
+      
+          fetch(API_URL + "getuseronlineorofline", requestOptions)
             .then(response => response.json())
             .then(result => {
-                console.log('getuseronlineorofline', result)
-                if (result.response[0].online == true) {
-                    const userIds = this.state.room_id
-                    const status = 'Online'
-                    this.setState({ status1: status });
-                    // AsyncStorage.setItem(`status_${userIds}`, status )
-                }
-                else {
-                    const userIds = this.state.room_id;
-                    const status = 'offline';
-                    const time = result.response[0].time;
-                    console.log('timestring', time)
-                    this.setState({ status1: status, time: time });
-                    // AsyncStorage.setItem(`status_${userIds}`,status) 
-                    // AsyncStorage.setItem(`time_${userIds}`,time?time:'')
-                }
+              console.log('getuseronlineorofline', result)
+              if (result.response[0].online == true) {
+                const userIds = this.state.room_id
+                const status = 'Online'
+                this.setState({ status1: status });
+                // AsyncStorage.setItem(`status_${userIds}`, status )
+              }
+              else  {
+                const userIds = this.state.room_id;
+                const status = 'offline';
+                const time = result.response[0].time;
+                console.log('timestring', time)
+                this.setState({ status1: status, time: time });
+                // AsyncStorage.setItem(`status_${userIds}`,status) 
+                // AsyncStorage.setItem(`time_${userIds}`,time?time:'')
+              }
             })
             .catch(error => console.log('error', error));
     }
 
-    getMessage = () => {
-        var requestOptions = {
+    getMessage = () =>{
+       var requestOptions = {
             method: 'GET',
             redirect: 'follow'
         };
@@ -930,67 +934,67 @@ class ChatRoom extends Component {
     componentDidUpdate() {
         // Scroll to the bottom whenever the component updates
         this.scrollViewRef.current?.scrollToEnd({ animated: true });
+        
+      }
 
-    }
-
-    componentWillUnmount() {
+      componentWillUnmount() {
         clearTimeout(this.typingTimer);
-    }
+      }
 
-    onChangeText = (input) => {
-
+      onChangeText = (input) => {
+   
         this.handleTyping(input);
-
+    
         clearTimeout(this.typingTimer);
         this.typingTimer = setTimeout(this.handleStoppedTyping, 2000); // Adjust the delay as needed
-    };
+      };
 
-    handleTyping = () => {
+      handleTyping = () => {
         // console.log(roomId)
         const data = [];
         data.push({ room: this.state.room_id, socket: this.state.socketid })
         // console.log('mysocketid',this.state.socketid )
-
+       
         socket.emit('typing', data);
-    };
-
-    handleStoppedTyping = () => {
+      };
+     
+      handleStoppedTyping = () => {
         // Call your second function here
-
+        
         // console.log(roomId)
         const data = [];
-
+        
         data.push({ room: this.state.room_id, socket: this.state.socketid })
         // console.log('mysocketid',this.state.socketid )
-
+       
         socket.emit('stopTyping', data);
         // console.log('Stopped typing:', socket.id);
-    };
-
+      };
+     
 
     handleEmojiSelected = (emoji) => {
-        console.log('emoji', emoji)
+            console.log('emoji',emoji)
 
-        const updatedMessage = `${this.state.chatMessage}${emoji}`;
-
-        this.setState({ chatMessage: updatedMessage });
-    };
-
-
+            const updatedMessage = `${this.state.chatMessage}${emoji}`;
+        
+            this.setState({ chatMessage: updatedMessage });
+        };
+    
+    
     toggleEmojiPicker = () => {
         this.setState(prevState => ({
-            isOpen: !prevState.showEmojiPicker,
+          isOpen: !prevState.showEmojiPicker,
         }));
-    };
+      };
+    
 
-
-
-    async handleStoppedTyping() {
+    
+    async handleStoppedTyping () {
         const data = [];
-        data.push({ room: this.state.room_id, socket: socket.id })
-        console.log("stoptyping dta: ", data);
-        socket.emit('stopTyping', data);
-
+            data.push({room:this.state.room_id, socket:socket.id})
+            console.log("stoptyping dta: ", data);
+            socket.emit('stopTyping', data);
+        
     }
 
 
@@ -1004,7 +1008,7 @@ class ChatRoom extends Component {
         };
         launchImageLibrary(options, async (response) => {
             console.log('Response = ', response);
-            this.state.image = response;
+            this.state.image=response;
             // if (response.assets[0].type === 'image/jpeg' || response.assets[0].type === 'image/png') {
             //     // Call image upload API
             //     // this.uploadImage();
@@ -1017,25 +1021,23 @@ class ChatRoom extends Component {
                 // this.uploadImage();
                 // Navigate to Preview screen with the selected image
                 this.props.navigation.navigate('AttachmentPreview',
-                    {
-                        image: response,
-                        room_id: this.state.room_id,
-                        names: this.state.names,
-                        sender_id: this.state.sender_id
-                    });
+                 {  image: response, 
+                    room_id : this.state.room_id,
+                    names : this.state.names,
+                    sender_id : this.state.sender_id    
+                });
             } else if (response.assets[0].type === 'video/mp4') {
                 // Call video upload API
                 // this.uploadVideo();
                 // Navigate to Preview screen with the selected video
-                this.props.navigation.navigate('AttachmentPreview',
-                    {
-                        video: response,
-                        room_id: this.state.room_id,
-                        names: this.state.names,
-                        sender_id: this.state.sender_id
-                    });
+                this.props.navigation.navigate('AttachmentPreview', 
+                {   video: response,
+                    room_id : this.state.room_id,
+                    names : this.state.names,
+                    sender_id : this.state.sender_id 
+                });
             }
-
+              
 
             if (response.didCancel) {
                 console.log('User cancelled image picker');
@@ -1049,7 +1051,7 @@ class ChatRoom extends Component {
                     // image: response.uri,
                     modalVisible: false
                 });
-
+               
             }
         });
     }
@@ -1093,7 +1095,7 @@ class ChatRoom extends Component {
                 } else if (response.customButton) {
                     console.log('User tapped custom button: ', response.customButton);
                 } else {
-                    this.state.image = response;
+                    this.state.image=response;
                     // this.setState({
                     //     filePath: response,
                     //     image: response.uri,
@@ -1109,27 +1111,25 @@ class ChatRoom extends Component {
                         // this.uploadImage();
                         // Navigate to Preview screen with the selected image
                         this.props.navigation.navigate('AttachmentPreview',
-                            {
-                                image: response,
-                                room_id: this.state.room_id,
-                                names: this.state.names,
-                                sender_id: this.state.sender_id
-                            });
+                         {  image: response, 
+                            room_id : this.state.room_id,
+                            names : this.state.names,
+                            sender_id : this.state.sender_id    
+                        });
                     } else if (response.assets[0].type === 'video/mp4') {
                         // Call video upload API
                         // this.uploadVideo();
                         // Navigate to Preview screen with the selected video
-                        this.props.navigation.navigate('AttachmentPreview',
-                            {
-                                video: response,
-                                room_id: this.state.room_id,
-                                names: this.state.names,
-                                sender_id: this.state.sender_id
-                            });
+                        this.props.navigation.navigate('AttachmentPreview', 
+                        {   video: response,
+                            room_id : this.state.room_id,
+                            names : this.state.names,
+                            sender_id : this.state.sender_id 
+                        });
                     }
                 }
             });
-
+           
         } else {
             console.log("Camera permission denied");
         }
@@ -1143,7 +1143,7 @@ class ChatRoom extends Component {
             console.log(
                 result
             );
-            this.state.doc = result;
+            this.state.doc=result;
             this.setState({
                 // image: response.uri,
                 modalVisible: false
@@ -1152,13 +1152,12 @@ class ChatRoom extends Component {
             //     modalVisible: false
             // });
             // this.uploadDocument();
-            this.props.navigation.navigate('AttachmentPreview',
-                {
-                    document: result,
-                    room_id: this.state.room_id,
-                    names: this.state.names,
-                    sender_id: this.state.sender_id
-                });
+            this.props.navigation.navigate('AttachmentPreview', 
+            {   document: result,
+                room_id : this.state.room_id,
+                names : this.state.names,
+                sender_id : this.state.sender_id
+            });
         } catch (err) {
             if (DocumentPicker.isCancel(err)) {
                 console.log('User cancelled document picker');
@@ -1166,45 +1165,43 @@ class ChatRoom extends Component {
                 throw err;
             }
         }
-
+        
     }
 
     async uploadDocument() {
-        const docs = {
-            uri: this.state.doc[0].uri,
-            type: this.state.doc[0].type,
+        const docs = { uri : this.state.doc[0].uri,
+            type : this.state.doc[0].type,
             name: this.state.doc[0].name,
         };
-
+        
         var formdata = new FormData();
         formdata.append("sender_id", this.state.sender_id);
         formdata.append("senderName", this.state.names);
-        formdata.append("document_file", docs);
+        formdata.append("document_file", docs );
         formdata.append("room_id", this.state.room_id);
         formdata.append("message", this.state.chatMessage);
 
         var requestOptions = {
-            method: 'POST',
-            body: formdata,
-            redirect: 'follow'
+        method: 'POST',
+        body: formdata,
+        redirect: 'follow'
         };
 
-        await fetch(API_URL + "documentfileupload", requestOptions)
-            .then(response => response.json())
-            .then(result => {
-                console.log(result)
-                if (result.status === 'Success') {
-                    socket.emit('user document', result.result);
-                }
-                else {
-                    console.log(result)
-                }
+        await fetch(API_URL+"documentfileupload", requestOptions)
+        .then(response => response.json())
+        .then(result => { console.log(result)
+            if(result.status ==='Success'){
+                socket.emit('user document',result.result);
+              }
+            else {
+              console.log(result)
+            }
 
-            })
-            .catch(error => console.log('error', error));
+        })
+        .catch(error => console.log('error', error));
 
     }
-
+    
 
     async pickAudioFiles() {
         try {
@@ -1214,7 +1211,7 @@ class ChatRoom extends Component {
             console.log(
                 result
             );
-            this.state.audio = result;
+            this.state.audio=result;
             this.setState({
                 modalVisible: false
             });
@@ -1228,7 +1225,7 @@ class ChatRoom extends Component {
         }
     }
 
-    async uploadAudio() {
+    async uploadAudio () {
         const audios = {
             uri: this.state.audio[0].uri,
             type: this.state.audio[0].type,
@@ -1243,26 +1240,25 @@ class ChatRoom extends Component {
         formdata.append("room_id", this.state.room_id);
 
         var requestOptions = {
-            method: 'POST',
-            body: formdata,
-            redirect: 'follow'
+        method: 'POST',
+        body: formdata,
+        redirect: 'follow'
         };
 
-        await fetch(API_URL + "audiofileupload", requestOptions)
-            .then(response => response.json())
-            .then(result => {
-                console.log(result)
-                if (result.status === 'Success') {
-                    socket.emit('user audio', result.result);
-                }
-                else {
-                    console.log(result)
-                }
-            })
-            .catch(error => console.log('error', error));
+        await fetch(API_URL+"audiofileupload", requestOptions)
+        .then(response => response.json())
+        .then(result => {console.log(result)
+            if(result.status==='Success'){
+                socket.emit('user audio',result.result);
+              }
+            else{
+              console.log(result)
+            }
+        })
+        .catch(error => console.log('error', error));
     }
-
-
+    
+   
 
     getLocation() {
         Geolocation.getCurrentPosition(
@@ -1280,7 +1276,20 @@ class ChatRoom extends Component {
         );
     }
 
-
+    Finger_print() {
+        FingerprintScanner.authenticate({
+            description: 'Scan your fingerprint on the device scanner to continue',
+        })
+            .then(() => {
+                ToastMsg('Authenticated successfully', 'success');
+                this.setState({ Activated: true });
+                FingerprintScanner.release();
+            })
+            .catch(error => {
+                FingerprintScanner.release();
+                ToastMsg(error.message, 'danger');
+            });
+    }
 
     submitChatMessage() {
         var myHeaders = new Headers();
@@ -1292,7 +1301,6 @@ class ChatRoom extends Component {
             "senderName": this.state.names,
             "msg": this.state.chatMessage
         });
-        console.log('raw',raw)
 
         var requestOptions = {
             method: 'POST',
@@ -1314,38 +1322,37 @@ class ChatRoom extends Component {
             })
 
             .catch(error => console.log('error', error));
-        this.setState({
-            chatMessage: '',
-            isOpen: false
-        });
+        this.setState({ chatMessage: '',
+                        isOpen:false
+             });
     }
 
-
+   
 
     clearChat() {
-        this.setState({ isloading: true })
+        this.setState({isloading:true})
         var requestOptions = {
             method: 'DELETE',
             redirect: 'follow'
         };
 
         fetch(API_URL + "clearallchat/" + this.state.room_id, requestOptions)
-            .then(response => response.json())
-            .then(result => {
-                console.log(result);
-                this.setState({ modalVisible2: false });
-                this.setState({ isloading: false })
-                // emit clear chat event to other users
-                socket.emit('clear chat');
+        .then(response => response.json())
+        .then(result => {
+            console.log(result);
+            this.setState({ modalVisible2: false });
+            this.setState({isloading:false})
+            // emit clear chat event to other users
+            socket.emit('clear chat');
 
-                // clear chatMessages state variable
-                this.setState({ chatMessages: [] });
-            })
+            // clear chatMessages state variable
+            this.setState({ chatMessages: [] });
+        })
             .catch(error => console.log('error', error));
     }
 
     setTheme() {
-        this.setState({ isloading: true })
+        this.setState({isloading:true})
 
         console.log(this.state.image)
         var myHeaders = new Headers();
@@ -1365,17 +1372,39 @@ class ChatRoom extends Component {
 
         fetch(API_URL + "settheme", requestOptions)
             .then(response => response.json())
-            .then(async result => {
+            .then(result => {
                 console.log(result)
                 this.setState({
                     theme: result.result.setTheme
                 });
-                this.setState({ isloading: false })
+                this.setState({isloading:false})
 
                 console.log(this.state.theme)
-                await AsyncStorage.setItem('theme1', result.result.setTheme);
+                AsyncStorage.setItem('theme1', result.result.setTheme);
             })
             .catch(error => console.log('error', error));
+    }
+
+    setTheme1(){
+        var myHeaders = new Headers();
+        myHeaders.append("Content-Type", "application/json");
+
+        var raw = JSON.stringify({
+        "room_id": this.state.room_id,
+        "setTheme": "#ffhxff"
+        });
+
+        var requestOptions = {
+        method: 'PUT',
+        headers: myHeaders,
+        body: raw,
+        redirect: 'follow'
+        };
+
+        fetch(API_URL+"settheme", requestOptions)
+        .then(response => response.json())
+        .then(result => console.log(result))
+        .catch(error => console.log('error', error));
     }
 
 
@@ -1447,7 +1476,7 @@ class ChatRoom extends Component {
     };
 
     deleteRoom() {
-        this.setState({ isloading: true })
+        this.setState({isloading:true})
         var raw = "";
 
         var requestOptions = {
@@ -1462,7 +1491,7 @@ class ChatRoom extends Component {
                 // console.log(result)
                 if (result.status === true) {
                     console.log(result)
-                    this.setState({ isloading: false })
+                    this.setState({isloading:false})
                     this.props.navigation.navigate('Home');
                 }
             })
@@ -1584,24 +1613,24 @@ class ChatRoom extends Component {
         };
 
         fetch(API_URL + "deletonemanymessage", requestOptions)
-            .then(response => response.json())
-            .then(result => {
-                console.log(result);
+        .then(response => response.json())
+        .then(result => {
+            console.log(result);
 
-                // emit delete message event to other users
-                newArray.forEach((_id) => {
-                    socket.emit('delete message', { _id });
-                });
+            // emit delete message event to other users
+            newArray.forEach((_id) => {
+                socket.emit('delete message', { _id });
+            });
 
-                this.setState({
-                    isDisabled: true,
-                    deleteCompleted: true,
-                    selectedMessageIds: [],
-                    // remove deleted messages from chatMessages state
-                    chatMessages: this.state.chatMessages.filter((msg) => !newArray.includes(msg._id))
-                });
-            })
-            .catch(error => console.log('error', error));
+            this.setState({
+                isDisabled: true,
+                deleteCompleted: true,
+                selectedMessageIds: [],
+                // remove deleted messages from chatMessages state
+                chatMessages: this.state.chatMessages.filter((msg) => !newArray.includes(msg._id))
+            });
+        })
+        .catch(error => console.log('error', error));
     }
     handleOptionPress = (option) => {
         this.setState({ modalVisible2: false });
@@ -1613,7 +1642,7 @@ class ChatRoom extends Component {
     };
 
     chatHiddenly = () => {
-        this.setState({ isloading: true })
+        this.setState({isloading:true})
         var myHeaders = new Headers();
         myHeaders.append("Content-Type", "application/json");
         console.log("API hrs", this.state.hrs)
@@ -1623,6 +1652,7 @@ class ChatRoom extends Component {
             "minutes": this.state.min,
             "seconds": this.state.sec
         });
+        console.log('raw',raw)
 
         var requestOptions = {
             method: 'DELETE',
@@ -1634,7 +1664,7 @@ class ChatRoom extends Component {
         fetch(API_URL + "chathiddenly", requestOptions)
             .then(response => response.json())
             .then(result => {
-                this.setState({ isloading: false })
+                this.setState({isloading:false})
                 console.log(result)
                 Alert.alert(
                     'Alert Title',
@@ -1649,35 +1679,35 @@ class ChatRoom extends Component {
 
     handleRecordStart = async () => {
         const audioPath = AudioUtils.DocumentDirectoryPath + '/test.mp3';
-
+    
         try {
-            await AudioRecorder.prepareRecordingAtPath(audioPath, {
-                SampleRate: 22050,
-                Channels: 1,
-                AudioQuality: 'Low',
-                AudioEncoding: 'aac',
-            });
-            await AudioRecorder.startRecording();
-            this.setState({ isRecording: true });
+          await AudioRecorder.prepareRecordingAtPath(audioPath, {
+            SampleRate: 22050,
+            Channels: 1,
+            AudioQuality: 'Low',
+            AudioEncoding: 'aac',
+          });
+          await AudioRecorder.startRecording();
+          this.setState({ isRecording: true });
         } catch (error) {
-            console.error(error);
+          console.error(error);
         }
-    };
-
+      };
+    
     handleRecordStop = async () => {
         this.setState({ isRecording: false });
-
+      
         try {
-            const audioFile = await AudioRecorder.stopRecording();
-            const audioData = await RNFS.readFile(audioFile, 'base64');
-            console.log('audiofile', audioFile, 'data', audioData)
+          const audioFile = await AudioRecorder.stopRecording();
+          const audioData = await RNFS.readFile(audioFile, 'base64');
+          console.log('audiofile', audioFile, 'data', audioData)
 
-            const recording = {
-                uri: 'file://' + audioFile,
-                type: 'audio/mpeg',
-                name: 'test.mp3',
-            };
-            var formdata = new FormData();
+          const recording = {
+            uri: 'file://' + audioFile,
+            type: 'audio/mpeg',
+            name: 'test.mp3',
+        };
+          var formdata = new FormData();
             formdata.append("sender_id", this.state.sender_id);
             formdata.append("senderName", this.state.names);
             formdata.append("audio", recording);
@@ -1685,97 +1715,97 @@ class ChatRoom extends Component {
             console.log('formdata', formdata)
 
             var requestOptions = {
-                method: 'POST',
-                body: formdata,
-                redirect: 'follow'
+            method: 'POST',
+            body: formdata,
+            redirect: 'follow'
             };
 
-            await fetch(API_URL + "audiofileupload", requestOptions)
-                .then(response => response.json())
-                .then(result => {
-                    console.log(result)
-                    if (result.status === 'Success') {
-                        socket.emit('user audio', result.result);
-                    }
-                    else {
-                        console.log(result)
-                    }
-                })
-                .catch(error => console.log('error', error));
-
-
-
+            await fetch(API_URL+"audiofileupload", requestOptions)
+            .then(response => response.json())
+            .then(result => {
+                console.log(result)
+                if(result.status==='Success'){
+                    socket.emit('user audio',result.result);
+                  }
+                else{
+                  console.log(result)
+                }
+            })
+            .catch(error => console.log('error', error));
+         
+         
+          
         } catch (error) {
-            console.error(error);
+          console.error(error);
         }
-    };
-
+      };
+      
     render() {
-        const { Activated, ProfileName, isloading, modalVisible, names, selectedMessageIds, theme, isOpen, isOnline, isVisible } = this.state;
+        const { Activated, ProfileName, isloading, modalVisible, names, selectedMessageIds, theme, isOpen, isOnline, isVisible,onetoone1 } = this.state;
         const { chatMessage, navigation, route } = this.props;
         // const statusText = isTyping ? 'typing...' : (isOnline ? 'online' : '');
         const displayValue = this.state.status1 === 'offline' ? 'Last Seen at ' + this.state.time : this.state.status1;
-
+        
         const chatMessages = this.state.chatMessages.map((chatMessage, id) => (
             <View>
-                {chatMessage.video === '' ? null : (
+            {chatMessage.video === '' ? null : (
                     <View style={{
                         backgroundColor: selectedMessageIds.includes(chatMessage._id)
                             ? "#cde"
                             : "transparent",
                     }}>
-                        <TouchableOpacity onPress={() => navigation.navigate('Preview', { image: chatMessage.video })}
-                            onLongPress={() => this.handlePress(chatMessage._id)}
-                        // delayLongPress={100}
-                        >
-                            <Video
-                                source={{
-                                    uri: VideoPath + chatMessage.video
-                                }}
-                                style={{
-                                    height: dh * 0.4,
-                                    maxWidth: dw * 0.6,
-                                    borderRadius: 20,
-                                    borderWidth: 2,
-                                    marginTop: '2%',
-                                    margin: '2%',
-                                    borderColor: '#333',
-                                    marginLeft: chatMessage.senderName === names ? 120 : 0,
+                        <TouchableOpacity onPress={()=>navigation.navigate('Preview', {image : chatMessage.video})}
+                         onLongPress={() => this.handlePress(chatMessage._id)}
+                            // delayLongPress={100}
+                         >
+                        <Video
+                            source={{
+                                uri: VideoPath+chatMessage.video
+                            }}
+                            style={{
+                                height: dh * 0.4,
+                                maxWidth: dw * 0.6,
+                                borderRadius: 20,
+                                borderWidth: 2,
+                                marginTop: '2%',
+                                margin:'2%',
+                                borderColor: '#333',
+                                marginLeft: chatMessage.senderName === names ? 120 : 0,
 
-                                }}
-                                resizeMode={'cover'}
-                                // controls={true}
-                                // onLoad={{paused:true}}
-
-                                muted={true}
-                                paused={false}
-                                // audioOnly={true}
-                                fullscreenOrientation={'all'}
-                                fullscreen={true}
-                                poster={chatMessage.video}
-                                ref={ref => {
-                                    this.player = ref;
-                                }}
-                            />
-                            <Icon
-                                name="play"
-                                size={40}
-                                color="#fff"
-                                style={{
-                                    position: 'absolute',
-                                    top: '50%',
-                                    left: '50%',
-                                    marginLeft: chatMessage.senderName === names ? 40 : -70,
-                                    marginTop: -25,
-                                }}
-                            />
-                            <Text
-                                style={{
-                                    fontSize: Com_font.txt14,
-                                    color: Com_color.labletxt2,
-                                    marginLeft: chatMessage.senderName === names ? 250 : 0,
-                                }}>
-                                {chatMessage.time}
+                            }}
+                            resizeMode={'cover'}
+                            // controls={true}
+                            // onLoad={{paused:true}}
+                                                        
+                            muted={true}
+                            paused={false}
+                            // audioOnly={true}
+                            fullscreenOrientation={'all'}
+                            fullscreen={true}
+                            poster={chatMessage.video} 
+                            ref={ref => {
+                                this.player = ref;
+                            }}
+                        />
+                        <Icon
+                            name="play"
+                            size={40}
+                            color="#fff"
+                            style={{
+                            position: 'absolute',
+                            top: '50%',
+                            left: '50%',
+                            marginLeft: chatMessage.senderName === names ? 40 : -70,
+                            marginTop: -25,
+                            }}
+                        />
+                        <Text
+                            style={{
+                                fontSize: Com_font.txt14,
+                                color: Com_color.labletxt2,
+                                marginLeft: chatMessage.senderName === names ? 250 : 0,
+                            }}>
+                            {chatMessage.time}
                             </Text>
                         </TouchableOpacity>
                     </View>
@@ -1785,49 +1815,49 @@ class ChatRoom extends Component {
                         backgroundColor: selectedMessageIds.includes(chatMessage._id)
                             ? "#cde"
                             : "transparent",
-                    }}>
-                        <TouchableOpacity onPress={() => navigation.navigate('Preview', { image: chatMessage.image })}
-                            onLongPress={() => this.handlePress(chatMessage._id)}
-                        // delayLongPress={100}
-                        >
-                            <Image
-                                source={{ uri: ImagePath + chatMessage.image }}
-                                style={{
-                                    height: dh * 0.4,
-                                    maxWidth: dw * 0.6,
-                                    borderRadius: 20,
-                                    borderWidth: 2,
-                                    borderColor: '#fff',
-                                    marginTop: '2%',
-                                    margin: '2%',
-                                    marginLeft: chatMessage.senderName === names ? 120 : 0,
-                                }}
-                            />
-                            <Text
-                                style={{
-                                    fontSize: Com_font.txt14,
-                                    color: Com_color.labletxt2,
-                                    marginLeft: chatMessage.senderName === names ? 250 : 0,
-                                }}>
-                                {chatMessage.time}
+                    }}> 
+                        <TouchableOpacity onPress={()=>navigation.navigate('Preview', {image : chatMessage.image})} 
+                         onLongPress={() => this.handlePress(chatMessage._id)}
+                            // delayLongPress={100}
+                         >
+                        <Image
+                            source={{uri:ImagePath+chatMessage.image}}
+                            style={{
+                                height: dh * 0.4,
+                                maxWidth: dw * 0.6,
+                                borderRadius: 20,
+                                borderWidth: 2,
+                                borderColor: '#fff',
+                                marginTop: '2%',
+                                margin:'2%',
+                                marginLeft: chatMessage.senderName === names ? 120 : 0,
+                            }}
+                        />
+                        <Text
+                            style={{
+                                fontSize: Com_font.txt14,
+                                color: Com_color.labletxt2,
+                                marginLeft: chatMessage.senderName === names ? 250 : 0,
+                            }}>
+                            {chatMessage.time}
                             </Text>
                         </TouchableOpacity>
 
-                    </View>
+                    </View>                    
                 )}
                 {chatMessage.message === '' ? null : (
                     <View style={{
                         // height: dh * 0.05,
                         maxWidth: dw * 0.5,
                         backgroundColor:
-                            chatMessage.senderName === names ? '#99ed64' : '#f2f2f2',
+                        chatMessage.senderName === names ? '#99ed64' : '#f2f2f2',
                         borderRadius: 10,
                         borderWidth: 2,
                         marginTop: '2%',
-                        margin: '2%',
+                        margin:'2%',
                         borderColor: '#fff',
-                        alignSelf: chatMessage.senderName === names ? 'flex-end' : 'flex-start',
-                    }}>
+                        alignSelf:chatMessage.senderName === names ? 'flex-end' : 'flex-start',
+                      }}>
                         <TouchableOpacity
                             onLongPress={() => {
                                 this.handlePress(chatMessage._id);
@@ -1854,8 +1884,8 @@ class ChatRoom extends Component {
                                             : "transparent",
                                         margin: "3%",
                                         alignSelf: "center",
-                                        flexDirection: 'column',
-                                        color: 'black',
+                                        flexDirection:'column',
+                                        color:'black',
                                     }}
                                 >
                                     {chatMessage.message} {'\n'}
@@ -1865,98 +1895,98 @@ class ChatRoom extends Component {
                                             color: Com_color.labletxt2,
                                         }}>
                                         {chatMessage.time}
-                                    </Text>
+                                        </Text>
                                 </Text>
                             )}
                         </TouchableOpacity>
-
-                    </View>
+                        
+                        </View>
                 )}
-                {chatMessage.document == '' ? null : (
-                    <View style={{
+                  {chatMessage.document == '' ? null : (
+                <View style={{
                         backgroundColor: selectedMessageIds.includes(chatMessage._id)
                             ? "#cde"
                             : "transparent",
-                        height: dh * 0.2,
-                        maxWidth: dw * 0.3,
-                        borderRadius: 20,
-                        borderWidth: 2,
-                        borderColor: '#fff',
-                        marginTop: '2%',
-                        margin: '2%',
-                        // marginLeft: chatMessage.senderName === names ? 120 : 0,
-                        alignSelf: chatMessage.senderName === names ? 'flex-end' : 'flex-start',
-                    }} >
-                        <TouchableOpacity onPress={() => Linking.openURL(DocumentPath + chatMessage.document)}
-                            onLongPress={() => this.handlePress(chatMessage._id)}
-                        // delayLongPress={100}
-                        >
-                            <Image
-                                style={{
-                                    height: dh * 0.2,
-                                    maxWidth: dw * 0.3,
-                                    borderRadius: 20,
-                                    borderWidth: 2,
-                                    // resizeMode: 'contain'
-                                }}
-                                source={require('../../assets/Images/PDF.jpg')}
-                            />
-                            {/* <Text>{chatMessage.document}</Text> */}
-                            <Text
-                                style={{
-                                    fontSize: Com_font.txt14,
-                                    color: Com_color.labletxt2,
-                                    alignSelf: chatMessage.senderName === names ? 'flex-end' : 'flex-start',
-                                }}>
-                                {chatMessage.time}
+                    height: dh * 0.2,
+                    maxWidth: dw * 0.3,
+                    borderRadius: 20,
+                    borderWidth: 2,
+                    borderColor: '#fff',
+                    marginTop: '2%',
+                    margin:'2%',
+                    // marginLeft: chatMessage.senderName === names ? 120 : 0,
+                    alignSelf: chatMessage.senderName === names ? 'flex-end' : 'flex-start',
+                }} >
+                    <TouchableOpacity onPress={() => Linking.openURL(DocumentPath + chatMessage.document)}
+                     onLongPress={() => this.handlePress(chatMessage._id)}
+                            // delayLongPress={100}
+                     >
+                        <Image 
+                            style={{
+                                height: dh * 0.2,
+                                maxWidth: dw * 0.3,
+                                borderRadius: 20,
+                                borderWidth: 2,
+                                // resizeMode: 'contain'
+                            }}
+                            source={require('../../assets/Images/PDF.jpg')}
+                        />
+                        {/* <Text>{chatMessage.document}</Text> */}
+                        <Text
+                            style={{
+                                fontSize: Com_font.txt14,
+                                color: Com_color.labletxt2,
+                                alignSelf:chatMessage.senderName === names ? 'flex-end' : 'flex-start',
+                            }}>
+                            {chatMessage.time}
                             </Text>
-                        </TouchableOpacity>
-                    </View>
-                )}
+                    </TouchableOpacity>
+                </View>
+            )}
 
                 {chatMessage.audio == '' ? null : (
                     <View
-                        style={{
-                            //   height: dh * 0.05,
-                            maxWidth: dw * 0.6,
-                            backgroundColor:
-                                chatMessage.senderName === names ? '#99ed64' : '#f2f2f2',
-                            borderRadius: 20,
-                            borderWidth: 2,
-                            marginTop: '2%',
-                            margin: '2%',
-                            borderColor: '#fff',
-                            alignItems: 'center',
-                            alignSelf: chatMessage.senderName === names ? 'flex-end' : 'flex-start',
-                        }}>
-                        <TouchableOpacity
-                            onPress={() => navigation.navigate('Preview', { image: chatMessage.audio })}
-                            onLongPress={() => this.handlePress(chatMessage._id)}
-                        // delayLongPress={100}
-                        >
+                    style={{
+                    //   height: dh * 0.05,
+                      maxWidth: dw * 0.6,
+                      backgroundColor:
+                      chatMessage.senderName === names ? '#99ed64' : '#f2f2f2',
+                      borderRadius: 20,
+                      borderWidth: 2,
+                      marginTop: '2%',
+                      margin:'2%',
+                      borderColor: '#fff',
+                      alignItems:'center',
+                      alignSelf:chatMessage.senderName === names ? 'flex-end' : 'flex-start',
+                    }}>
+                    <TouchableOpacity
+                      onPress={()=>navigation.navigate('Preview', {image : chatMessage.audio})}
+                      onLongPress={() => this.handlePress(chatMessage._id)}
+                            // delayLongPress={100}
+                      >
+                    
+                      <Text style={{fontWeight:'bold', color:'black', alignSelf:'center', margin:'2%'}}>
+                        {chatMessage.audio}{'\n'}
+                        <Text
+                            style={{
+                                fontSize: Com_font.txt14,
+                                color: Com_color.labletxt2,
 
-                            <Text style={{ fontWeight: 'bold', color: 'black', alignSelf: 'center', margin: '2%' }}>
-                                {chatMessage.audio}{'\n'}
-                                <Text
-                                    style={{
-                                        fontSize: Com_font.txt14,
-                                        color: Com_color.labletxt2,
-
-                                    }}>
-                                    {chatMessage.time}
-                                </Text>
+                            }}>
+                            {chatMessage.time}
                             </Text>
-
-
-                        </TouchableOpacity>
-                    </View>
+                        </Text>
+                      
+                      
+                    </TouchableOpacity>
+                  </View>
                 )}
 
+               
+          </View>
+    ));
 
-            </View>
-        ));
-
-
+        
 
         return (
             <SafeAreaView style={styles.container}>
@@ -1969,7 +1999,7 @@ class ChatRoom extends Component {
                 />
                 {this.state.Activated != false ? (
                     <View style={styles.toolmain}>
-
+                        
                         <View style={styles.chatmain}>
                             <Pressable
                                 onPress={() => this.props.navigation.goBack()}
@@ -1977,22 +2007,41 @@ class ChatRoom extends Component {
                                 <IconBack name="keyboard-backspace" color="#3b3b3b" size={30} />
                             </Pressable>
                             <TouchableOpacity onPress={() => this.props.navigation.navigate('ViewOtherContact',
-                                { id: this.state.room_id, messages: this.state.chatMessages3, Alldata: this.state.Alldata, contactname: this.state.ProfileName })}>
-                                <Image source={
+                                { id: this.state.room_id, messages: this.state.chatMessages3, Alldata: this.state.Alldata, contactname:this.state.ProfileName })}>
+                            <Image 
+
+                            source={
+                                (ProfileName !== null && this.state.onetoone1?.otherdata?.[0]?.profilePrivacy?.myContact)
+                                ? (
                                     this.state.profilepic
                                         ? { uri: ProfileImagesPath + this.state.profilepic }
                                         : require('../../assets/Profile/Emptypic.png')
-                                } style={styles.proImg} />
+                                    )
+                                : (
+                                    this.state.onetoone1?.otherdata?.[0]?.profilePrivacy?.everyone
+                                        ? (
+                                            this.state.profilepic
+                                            ? { uri: ProfileImagesPath + this.state.profilepic }
+                                            : require('../../assets/Profile/Emptypic.png')
+                                        )
+                                        : (
+                                            this.state.onetoone1?.otherdata?.[0]?.profilePrivacy?.nobody
+                                            ? require('../../assets/Profile/Emptypic.png')
+                                            : require('../../assets/Profile/Emptypic.png')
+                                        )
+                                    )
+                            }    
+                                         style={styles.proImg} />
                             </TouchableOpacity>
-
+                            
                             <View style={styles.txtmain}>
                                 <Text style={styles.usernametxt}>{ProfileName}</Text>
                                 {/* <Text style={styles.onlinetxt}></Text> */}
                                 <Text style={styles.onlinetxt}>
-                                    {this.state.typing ? this.state.typing : displayValue}
+                                {this.state.typing?this.state.typing:displayValue}
                                 </Text>
                             </View>
-
+                            
                             {selectedMessageIds.length > 0 && (
                                 <TouchableOpacity onPress={this.deleteManyMessage}>
                                     <View>
@@ -2025,8 +2074,8 @@ class ChatRoom extends Component {
                                     transparent={true}
                                     onRequestClose={() => this.setState({ modalVisible2: false })}
                                 >
-                                    <TouchableWithoutFeedback onPress={() => this.setState({ modalVisible2: false })}>
-                                        <View style={{ flex: 1 }}></View>
+                                    <TouchableWithoutFeedback onPress={() => this.setState({modalVisible2:false})}>
+                                        <View style={{flex:1}}></View>
                                     </TouchableWithoutFeedback>
                                     <View style={styles.modalContainer}>
                                         <TouchableOpacity
@@ -2047,6 +2096,12 @@ class ChatRoom extends Component {
                                         >
                                             <Text style={styles.modalOptionText}>Delete Room</Text>
                                         </TouchableOpacity>
+                                        <TouchableOpacity
+                                            style={styles.modalOption}
+                                            onPress={() =>  this.props.navigation.navigate('Theme',this.state.room_id)}
+                                        >
+                                            <Text style={styles.modalOptionText}>Set Theme</Text>
+                                        </TouchableOpacity>
                                     </View>
                                 </Modal>
                             </TouchableOpacity>
@@ -2059,98 +2114,99 @@ class ChatRoom extends Component {
                 {this.state.Activated != false ? (
                     <Container style={{ marginTop: '3%' }}>
                         <ImageBackground
-                            source={theme ? { uri: theme } : { backgroundColor: '#3d53f5' }}
-                            style={{ height: '100%', width: '100%', resizeMode: 'cover' }}>
+                            // source={{uri: this.state.theme1 ? null:  theme  }}
+                            source={theme ? { uri: theme } : null}
+                            style={{ height: '100%', width: '100%', resizeMode: 'cover', backgroundColor: this.state.theme1}}>
+                                 
+
+                        <ScrollView
+                         ref={this.scrollViewRef}
+                         onContentSizeChange={() =>
+                           this.scrollViewRef.current?.scrollToEnd({ animated: true })
+                         }
+                         onLayout={() =>
+                           this.scrollViewRef.current?.scrollToEnd({ animated: true })
+                         }
+                          >
+                            {isloading ? (
+                            <View style={{ flex: 1, justifyContent: "center", alignItems: "center", marginTop:'40%' }}>
+                            <ActivityIndicator color={"darkblue"} size={'large'} />
+                            </View>
+                        ) : (
+                            <>
+                            <View style={styles.chatmainview}>
+                                {chatMessages}
+                                {/* {chatMessages2} */}
+                            </View>
+                            </>
+                            )}
+                        </ScrollView>
+                        <View style={styles.footermainview}>
 
 
-                            <ScrollView
-                                ref={this.scrollViewRef}
-                                onContentSizeChange={() =>
-                                    this.scrollViewRef.current?.scrollToEnd({ animated: true })
-                                }
-                                onLayout={() =>
-                                    this.scrollViewRef.current?.scrollToEnd({ animated: true })
-                                }
-                            >
-                                {isloading ? (
-                                    <View style={{ flex: 1, justifyContent: "center", alignItems: "center", marginTop: '40%' }}>
-                                        <ActivityIndicator color={"darkblue"} size={'large'} />
-                                    </View>
-                                ) : (
-                                    <>
-                                        <View style={styles.chatmainview}>
-                                            {chatMessages}
-                                            {/* {chatMessages2} */}
-                                        </View>
-                                    </>
-                                )}
-                            </ScrollView>
-                            <View style={styles.footermainview}>
-
-
-                                <Modal
-                                    style={{}}
-                                    animationType="slide"
-                                    transparent={true}
-                                    visible={modalVisible}
-                                    onRequestClose={() => {
-                                        Alert.alert('Modal has been closed.');
-                                        this.setState({ modalVisible: !modalVisible });
-                                    }}>
-                                    <TouchableWithoutFeedback onPress={() => this.setState({ modalVisible: false })}>
-                                        <View style={{ flex: 1 }}></View>
+                            <Modal
+                                style={{}}
+                                animationType="slide"
+                                transparent={true}
+                                visible={modalVisible}
+                                onRequestClose={() => {
+                                    Alert.alert('Modal has been closed.');
+                                    this.setState({ modalVisible: !modalVisible });
+                                }}>
+                                     <TouchableWithoutFeedback onPress={() => this.setState({modalVisible:false})}>
+                                        <View style={{flex:1}}></View>
                                     </TouchableWithoutFeedback>
 
-                                    <View style={styles.bottomView}>
-                                        <View style={{ ...styles.modalView, height: 300, width: 370, position: 'absolute', bottom: 30 }}>
-                                            <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>
-                                                <TouchableOpacity onPress={this.openGallery} style={styles.options}>
-                                                    <View style={styles.options1}>
-                                                        <Icon name="image" size={20} color='darkblue' />
-                                                    </View>
-                                                    <Text style={styles.optiontext}>Gallery</Text>
-                                                </TouchableOpacity>
-                                                <TouchableOpacity onPress={this.openCamera} style={styles.options}>
-                                                    <View style={styles.options1}>
-                                                        <Icon name="camera" size={20} color='darkblue' />
-                                                    </View>
-                                                    <Text style={styles.optiontext}>Camera</Text>
-                                                </TouchableOpacity>
-                                                <TouchableOpacity onPress={this.pickDocument} style={styles.options}>
-                                                    <View style={styles.options1}>
-                                                        <Icon name="file" size={20} color='darkblue' />
-                                                    </View>
-                                                    <Text style={styles.optiontext}>Documents</Text>
-                                                </TouchableOpacity>
-                                                <TouchableOpacity onPress={this.pickAudioFiles} style={styles.options}>
-                                                    <View style={styles.options1}>
-                                                        <Icon name="music" size={20} color='darkblue' />
-                                                    </View>
-                                                    <Text style={styles.optiontext}>Audio</Text>
-                                                </TouchableOpacity>
-                                                <TouchableOpacity style={styles.options}>
-                                                    <View style={styles.options1}>
-                                                        <Icon name="address-book" size={20} color='darkblue' />
-                                                    </View>
-                                                    <Text style={styles.optiontext}>Contacts</Text>
-                                                </TouchableOpacity>
-                                                <TouchableOpacity onPress={this.getLocation} style={styles.options}>
-                                                    <View style={styles.options1}>
-                                                        <Icon name="map-marker" size={25} color='darkblue' />
-                                                    </View>
-                                                    <Text style={styles.optiontext}>Location</Text>
-                                                </TouchableOpacity>
-                                            </View>
-
-                                            <Pressable
-                                                style={{ ...styles.button, ...styles.buttonClose, position: 'absolute', top: 5, right: 5 }}
-                                                onPress={() => this.setState({ modalVisible: !modalVisible })}>
-                                                <Text style={styles.textStyle}>x</Text>
-                                            </Pressable>
+                                <View style={styles.bottomView}>
+                                    <View style={{ ...styles.modalView, height: 300, width: 370, position: 'absolute', bottom: 30 }}>
+                                        <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>
+                                            <TouchableOpacity onPress={this.openGallery} style={styles.options}>
+                                                <View style={styles.options1}>
+                                                    <Icon name="image" size={20} color='darkblue' />
+                                                </View>
+                                                <Text style={styles.optiontext}>Gallery</Text>
+                                            </TouchableOpacity>
+                                            <TouchableOpacity onPress={this.openCamera} style={styles.options}>
+                                                <View style={styles.options1}>
+                                                    <Icon name="camera" size={20} color='darkblue' />
+                                                </View>
+                                                <Text style={styles.optiontext}>Camera</Text>
+                                            </TouchableOpacity>
+                                            <TouchableOpacity onPress={this.pickDocument} style={styles.options}>
+                                                <View style={styles.options1}>
+                                                    <Icon name="file" size={20} color='darkblue' />
+                                                </View>
+                                                <Text style={styles.optiontext}>Documents</Text>
+                                            </TouchableOpacity>
+                                            <TouchableOpacity onPress={this.pickAudioFiles} style={styles.options}>
+                                                <View style={styles.options1}>
+                                                    <Icon name="music" size={20} color='darkblue' />
+                                                </View>
+                                                <Text style={styles.optiontext}>Audio</Text>
+                                            </TouchableOpacity>
+                                            <TouchableOpacity style={styles.options}>
+                                                <View style={styles.options1}>
+                                                    <Icon name="address-book" size={20} color='darkblue' />
+                                                </View>
+                                                <Text style={styles.optiontext}>Contacts</Text>
+                                            </TouchableOpacity>
+                                            <TouchableOpacity onPress={this.getLocation} style={styles.options}>
+                                                <View style={styles.options1}>
+                                                    <Icon name="map-marker" size={25} color='darkblue' />
+                                                </View>
+                                                <Text style={styles.optiontext}>Location</Text>
+                                            </TouchableOpacity>
                                         </View>
+
+                                        <Pressable
+                                            style={{ ...styles.button, ...styles.buttonClose, position: 'absolute', top: 5, right: 5 }}
+                                            onPress={() => this.setState({ modalVisible: !modalVisible })}>
+                                            <Text style={styles.textStyle}>x</Text>
+                                        </Pressable>
                                     </View>
-                                </Modal>
-                                {/* <Pressable
+                                </View>
+                            </Modal>
+                            {/* <Pressable
                         style={{ ...styles.button, ...styles.buttonOpen, position: "absolute", bottom: 20, left: 20 }}
                         onPress={() => this.setState({ modalVisible: true })}>
                         <Text style={styles.textStyle}>+</Text>
@@ -2159,16 +2215,16 @@ class ChatRoom extends Component {
 
 
 
-                                <Iconadd onPress={() => this.setState({ modalVisible: true })} color={Com_color.txtblue} name="add" size={40} />
-                                <View style={styles.Brmainview}>
-                                    <TouchableOpacity onPress={this.toggleEmojiPicker} >
-                                        <Iconsfooter
-                                            color={Com_color.labletxt2}
-                                            name="emotsmile"
-                                            size={25}
-                                        />
-                                    </TouchableOpacity>
-
+                             <Iconadd onPress={() => this.setState({ modalVisible: true })} color={Com_color.txtblue} name="add" size={40} />
+                            <View style={styles.Brmainview}>
+                            <TouchableOpacity onPress={this.toggleEmojiPicker} >
+                                <Iconsfooter
+                                    color={Com_color.labletxt2}
+                                    name="emotsmile"
+                                    size={25}
+                                />
+                                </TouchableOpacity>
+                                
                                     {isOpen && (
                                         <Modal
                                             visible={isOpen}
@@ -2177,17 +2233,17 @@ class ChatRoom extends Component {
                                                 this.setState({ isOpen: false });
                                             }}
                                         >
-                                            <TouchableWithoutFeedback onPress={() => this.setState({ isOpen: false })}>
-                                                <View style={{ flex: 1 }}></View>
-                                            </TouchableWithoutFeedback>
+                                            <TouchableWithoutFeedback onPress={() => this.setState({isOpen:false})}>
+                            <View style={{flex:1}}></View>
+                        </TouchableWithoutFeedback>
                                             <View
                                                 style={{
                                                     height: '45%',
                                                     width: dw,
                                                     alignItems: 'center',
                                                     backgroundColor: 'white',
-                                                    position: 'absolute',
-                                                    bottom: 0,
+                                                    position:'absolute',
+                                                    bottom:0,
 
                                                 }}
                                             >
@@ -2199,100 +2255,100 @@ class ChatRoom extends Component {
                                                     columns={'10'}
                                                     placeholder={'Search'}
                                                     category={Categories.history}
-                                                    onEmojiSelected={this.handleEmojiSelected}
+                                                    onEmojiSelected={this.handleEmojiSelected} 
                                                 />
-                                                <View
-                                                    style={{
-                                                        width: dw,
-                                                        // height:dh*0.06,
-                                                        flexDirection: 'row',
-                                                        justifyContent: 'center'
-                                                    }}>
-                                                    <TextInput
-                                                        // style={styles.footertxt}
-                                                        style={{
-                                                            width: dw * 0.65,
-                                                            borderEndColor: 'black',
-                                                            borderWidth: 1,
-                                                            borderRadius: 20,
-                                                            backgroundColor: 'white',
-                                                            bottom: 7
-                                                        }}
-                                                        placeholder=""
-                                                        autoCorrect={false}
-                                                        value={this.state.chatMessage}
-                                                        multiline={true}
-                                                        onChangeText={(text) => {
-                                                            // this.handleTyping(text)
-                                                            clearTimeout(this.typingTimeout);
-                                                            this.typingTimeout = setTimeout(() => {
-                                                                this.handleStoppedTyping(text);
-                                                            }, 1000);
-                                                            this.setState({ chatMessage: text });
-                                                        }}
-                                                    />
+                                                <View 
+                                                style={{
+                                                    width:dw,
+                                                    // height:dh*0.06,
+                                                    flexDirection:'row',
+                                                    justifyContent:'center'
+                                                }}>
+                                                <TextInput
+                                    // style={styles.footertxt}
+                                    style={{
+                                        width: dw * 0.65,
+                                        borderEndColor:'black',
+                                        borderWidth:1,
+                                        borderRadius:20,
+                                        backgroundColor:'white',
+                                        bottom:7
+                                    }}
+                                    placeholder=""
+                                    autoCorrect={false}
+                                    value={this.state.chatMessage}
+                                    multiline={true}                                    
+                                    onChangeText={(text) => {
+                                        // this.handleTyping(text)
+                                        clearTimeout(this.typingTimeout);
+                                        this.typingTimeout = setTimeout(() => {
+                                            this.handleStoppedTyping(text);
+                                        }, 1000);
+                                        this.setState({ chatMessage: text });
+                                    }}
+                                />
+                                
+                                 <TouchableOpacity 
+                                 style={{
+                                position:'absolute',
+                                bottom:9,
+                                right:10
 
-                                                    <TouchableOpacity
-                                                        style={{
-                                                            position: 'absolute',
-                                                            bottom: 9,
-                                                            right: 10
-
-                                                        }}
-                                                        onPress={() => this.submitChatMessage()}>
-                                                        <Image
-                                                            source={require('../../assets/Images2/send4.png')}
-                                                            style={{ height: 45, width: 45 }}
-                                                        />
-                                                    </TouchableOpacity>
-                                                </View>
+                                }}
+                                  onPress={() => this.submitChatMessage()}>
+                                        <Image
+                                            source={require('../../assets/Images2/send4.png')}
+                                            style={{ height: 45, width: 45 }}
+                                        />
+                                    </TouchableOpacity>
+                                    </View>
                                             </View>
                                         </Modal>
                                     )}
-
-                                    <TextInput
-                                        // style={styles.footertxt}
-                                        style={styles.footertxt}
-                                        placeholder="Type a message"
-                                        autoCorrect={false}
-                                        value={this.state.chatMessage}
-                                        multiline={true}
-                                        onChangeText={(text) => {
-                                            this.setState({ chatMessage: text });
-                                            this.onChangeText();
-                                        }}
+                              
+                                <TextInput
+                                    // style={styles.footertxt}
+                                    style={styles.footertxt}
+                                    placeholder="Type a message"
+                                    autoCorrect={false}
+                                    value={this.state.chatMessage}
+                                    multiline={true}                                    
+                                    onChangeText={(text) => {
+                                        this.setState({ chatMessage: text });
+                                        this.onChangeText();
+                                    }}
+                                />
+                                
+                                <Iconsfooter
+                                    color={Com_color.labletxt2}
+                                    name="location-pin"
+                                    size={25}
+                                />
+                            </View>
+                            
+                            {this.state.chatMessage.length < 1 ?
+                                <TouchableOpacity
+                                onPressIn={this.handleRecordStart}
+                                onPressOut={this.handleRecordStop}
+                                >
+                                    <Image
+                                        source={require('../../assets/Images2/footer_mic.png')}
+                                        style={{ height: 40, width: 40 }}
                                     />
-
-                                    <Iconsfooter
-                                        color={Com_color.labletxt2}
-                                        name="location-pin"
-                                        size={25}
-                                    />
-                                </View>
-
-                                {this.state.chatMessage.length < 1 ?
-                                    <TouchableOpacity
-                                        onPressIn={this.handleRecordStart}
-                                        onPressOut={this.handleRecordStop}
-                                    >
+                                </TouchableOpacity>
+                                : (
+                                    <TouchableOpacity onPress={() => this.submitChatMessage()}>
                                         <Image
-                                            source={require('../../assets/Images2/footer_mic.png')}
+                                            source={require('../../assets/Images2/send4.png')}
                                             style={{ height: 40, width: 40 }}
                                         />
                                     </TouchableOpacity>
-                                    : (
-                                        <TouchableOpacity onPress={() => this.submitChatMessage()}>
-                                            <Image
-                                                source={require('../../assets/Images2/send4.png')}
-                                                style={{ height: 40, width: 40 }}
-                                            />
-                                        </TouchableOpacity>
 
-                                    )
-                                }
+                                )
+                            }
 
 
-                            </View>
+                        </View>
                         </ImageBackground>
                     </Container>
                 ) : (
@@ -2333,7 +2389,7 @@ class ChatRoom extends Component {
                             {/* <DatePicker date={new Date()} mode={'time'} /> */}
                             <View>
                                 <View style={{ flexDirection: 'row' }}>
-                                    <Picker
+                                <Picker
                                         itemStyle={styles.itemStyle}
                                         mode="dropdown"
                                         style={styles.pickerStyle}
@@ -2447,10 +2503,10 @@ const styles = {
         width: dw,
     },
     Icons: { margin: '3%', bottom: '2%' },
-    chatmain: { flexDirection: 'row', alignItems: 'center', },
+    chatmain: { flexDirection: 'row', alignItems: 'center',  },
     notifyImage: { width: 40, height: 40, marginLeft: '20%' },
     txtmain: { width: dw * 0.4, paddingLeft: '4%' },
-    usernametxt: { fontSize: Com_font.txt16, color: Com_color.labletxt, fontWeight: 'bold' },
+    usernametxt: { fontSize: Com_font.txt16, color: Com_color.labletxt, fontWeight:'bold' },
     onlinetxt: { fontSize: Com_font.txt16, color: '#67c781', fontWeight: 'bold' },
     labletxt: {
         fontSize: Com_font.txt14,
@@ -2588,9 +2644,9 @@ const styles = {
         borderRadius: 10,
         padding: 10,
         // marginHorizontal: 20,
-        position: 'absolute',
-        top: 15,
-        right: 5,
+        position:'absolute',
+        top:15,
+        right:5,
         elevation: 5,
     },
     modalOption: {
@@ -2602,7 +2658,7 @@ const styles = {
     modalOptionText: {
         fontSize: 18,
         fontWeight: 'bold',
-        color: '#333'
+        color:'#333'
     },
 
 
