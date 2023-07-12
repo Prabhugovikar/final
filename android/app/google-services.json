@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "536379002893",
+    "project_id": "hiddenly-6a0bc",
+    "storage_bucket": "hiddenly-6a0bc.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:536379002893:android:2d81a5aaffef64b7a38544",
+        "android_client_info": {
+          "package_name": "com.hiddenly"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "536379002893-ussv6ems8ubmgm99f690scj81gj1de7q.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAq5tXkri1Tss7B3PyLOvA6TBFy9xVsMWE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "536379002893-ussv6ems8ubmgm99f690scj81gj1de7q.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
