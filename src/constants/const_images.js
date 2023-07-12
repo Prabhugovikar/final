@@ -1,0 +1,16 @@
+export default Object.freeze({
+  Bg_Img: require('../assets/Images2/common/bg_Img.png'),
+  GoBack: require('../assets/Images2/common/back.png'),
+  Splash: require('../assets/Images2/splash/logo1.png'),
+  Finger: require('../assets/Images2/finger_id_access.png'),
+  test: require('../assets/Images2/test.jpg'),
+  test2: require('../assets/Images2/test2.png'),
+  Chat: require('../assets/Images2/chat.png'),
+  Mic: require('../assets/Images2/footer_mic.png'),
+  Ic_video: require('../assets/Images2/ic_video.png'),
+  Ic_Next: require('../assets/Images2/ic_next.png'),
+  Empty_Prof_Pic: require('../assets/Images2/ic_empty_profile_pic.png'),
+  Checkbox_Active: require('../assets/Images2/ic_checkbox_active.png'),
+  Checkbox_Normal: require('../assets/Images2/ic_checkbox_normal.png'),
+  Add_status: require('../assets/Images2/ic_add_my_status.png'),
+});
